@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lunar Breath</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Mobile-friendly -->
+    <style>
+        body { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+            background: #1a1a2e; 
+            color: #f0f0f0; 
+            font-family: Arial, sans-serif; 
+        }
+        #moon { 
+            width: 100px; 
+            height: 100px; 
+            border-radius: 50%; 
+            background: radial-gradient(circle, #f0f0f0, #d3d3d3); 
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); 
+            transition: transform 0.5s ease; 
+        }
+        .pulse { 
+            transform: scale(1.2); 
+        }
+        #counter { 
+            font-size: 28px; 
+            margin-bottom: 20px; 
+        }
+        #guide { 
+            font-size: 24px; 
+            margin-top: 20px; 
+        }
+    </style>
+</head>
+<body>
+    <div id="counter">13</div>
+    <div id="moon"></div>
+    <p id="guide">Inhale...</p>
+
+    <script>
+        const moon = document.getElementById("moon");
+        const guide = document.getElementById("guide");
+        const counter = document.getElementById("counter");
+
+        // Define the breathing phases in seconds (inhale, exhale pairs)
+        const phases = [
+            { duration: 13, text: "Inhale..." },
+            { duration: 13, text: "Exhale..." },
+            { duration: 8, text: "Inhale..." },
+            { duration: 8, text: "Exhale..." },
+            { duration: 5, text: "Inhale..." },
+            { duration: 5, text: "Exhale..." },
+            { duration: 2, text: "Inhale..." },
+            { duration: 2, text: "Exhale..." },
+            { duration: 1, text: "Inhale..." },
+            { duration: 1, text: "Exhale..." },
+            { duration: 30, text: "Hold..." } // Breath hold at the end
+        ];
+
+        let currentPhaseIndex = 0;
+        let secondsLeft = phases[0].duration;
+
+        function updateDisplay() {
+            const phase = phases[currentPhaseIndex];
+            guide.textContent = phase.text;
+            counter.textContent = secondsLeft;
+
+            // Pulse moon on inhale/exhale, steady on hold
+            if (phase.text === "Hold...") {
+                moon.classList.remove("pulse");
+            } else {
+                moon.classList.toggle("pulse");
+            }
+        }
+
+        function startBreathing() {
+            updateDisplay();
+            const interval = setInterval(() => {
+                secondsLeft--;
+
+                if (secondsLeft < 0) {
+                    currentPhaseIndex++;
+                    if (currentPhaseIndex >= phases.length) {
+                        clearInterval(interval); // End after hold
+                        guide.textContent = "Done!";
+                        counter.textContent = "0";
+                        moon.classList.remove("pulse");
+                        return;
+                    }
+                    secondsLeft = phases[currentPhaseIndex].duration;
+                }
+
+                updateDisplay();
+            }, 1000); // Update every second
+        }
+
+        // Start the breathing cycle
+        startBreathing();
+    </script>
+</body>
+</html>

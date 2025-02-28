@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lunar Breath</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Makes it mobile-friendly -->
+    <style>
+        body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #1a1a2e; color: #f0f0f0; font-family: Arial, sans-serif; }
+        #moon { width: 100px; height: 100px; border-radius: 50%; background: radial-gradient(circle, #f0f0f0, #d3d3d3); box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+        .pulse { animation: pulse 4s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        #guide { font-size: 24px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div id="moon"></div>
+    <p id="guide">Inhale...</p>
+    <script>
+        let phase = "Inhale";
+        const moon = document.getElementById("moon");
+        const guide = document.getElementById("guide");
+        setInterval(() => {
+            moon.classList.toggle("pulse");
+            phase = phase === "Inhale" ? "Exhale" : "Inhale";
+            guide.textContent = phase + "...";
+        }, 4000); // 4-second inhale/exhale cycle
+    </script>
+</body>
+</html>

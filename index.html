@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lunar Breath</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+            background: #1a1a2e; 
+            color: #f0f0f0; 
+            font-family: 'Poppins', sans-serif; 
+        }
+        #moon-container {
+            position: relative;
+            width: 100px;
+            height: 100px;
+        }
+        #moon { 
+            width: 100px; 
+            height: 100px; 
+            border-radius: 50%; 
+            background: radial-gradient(circle, #f0f0f0, #d3d3d3); 
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); 
+            transition: transform 1s ease; 
+        }
+        #progress-svg {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            width: 120px;
+            height: 120px;
+        }
+        #progress-circle {
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+            transition: stroke-dashoffset 1s linear; /* Smooth transition */
+        }
+        #counter { 
+            font-size: 36px; 
+            margin-bottom: 20px; 
+        }
+        #guide { 
+            font-size: 28px; 
+            margin-top: 20px; 
+        }
+    </style>
+</head>
+<body>
+    <div id="counter">13</div>
+    <div id="moon-container">
+        <svg id="progress-svg">
+            <circle id="progress-circle" cx="60" cy="60" r="55" fill="none" stroke="#f0f0f0" stroke-width="5" />
+        </svg>
+        <div id="moon"></div>
+    </div>
+    <p id="guide">Inhale...</p>
+
+    <script>
+        const moon = document.getElementById("moon");
+        const guide = document.getElementById("guide");
+        const counter = document.getElementById("counter");
+        const progressCircle = document.getElementById("progress-circle");
+
+        const radius = 55; // Adjusted for smaller SVG
+        const circumference = 2 * Math.PI * radius;
+        progressCircle.setAttribute("stroke-dasharray", circumference);
+
+        const phases = [
+            { duration: 13, text: "Inhale..." },
+            { duration: 13, text: "Exhale..." },
+            { duration: 8, text: "Inhale..." },
+            { duration: 8, text: "Exhale..." },
+            { duration: 5, text: "Inhale..." },
+            { duration: 5, text: "Exhale..." },
+            { duration: 2, text: "Inhale..." },
+            { duration: 2, text: "Exhale..." },
+            { duration: 1, text: "Inhale..." },
+            { duration: 1, text: "Exhale..." },
+            { duration: 30, text: "Hold..." }
+        ];
+
+        let currentPhaseIndex = 0;
+        let secondsLeft = phases[0].duration;
+
+        function updateDisplay() {
+            const phase = phases[currentPhaseIndex];
+            guide.textContent = phase.text;
+            counter.textContent = secondsLeft;
+
+            // Smooth progress bar update
+            const fractionRemaining = secondsLeft / phase.duration;
+            const offset = circumference * (1 - fractionRemaining);
+            progressCircle.setAttribute("stroke-dashoffset", offset);
+
+            // Pulse moon during inhale
+            if (phase.text === "Inhale...") {
+                moon.style.transform = "scale(1.2)";
+            } else {
+                moon.style.transform = "scale(1)";
+            }
+        }
+
+        function startBreathing() {
+            updateDisplay();
+            const interval = setInterval(() => {
+                secondsLeft--;
+
+                if (secondsLeft < 0) {
+                    currentPhaseIndex++;
+                    if (currentPhaseIndex >= phases.length) {
+                        clearInterval(interval);
+                        guide.textContent = "Done!";
+                        counter.textContent = "0";
+                        progressCircle.setAttribute("stroke-dashoffset", circumference);
+                        moon.style.transform = "scale(1)";
+                        return;
+                    }
+                    secondsLeft = phases[currentPhaseIndex].duration;
+                }
+
+                updateDisplay();
+            }, 1000);
+        }
+
+        startBreathing();
+    </script>
+</body>
+</html>

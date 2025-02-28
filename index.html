@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Lunar Breath</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Mobile-friendly -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { 
             display: flex; 
@@ -15,16 +15,29 @@
             color: #f0f0f0; 
             font-family: Arial, sans-serif; 
         }
+        #moon-container {
+            position: relative;
+            width: 100px;
+            height: 100px;
+        }
         #moon { 
             width: 100px; 
             height: 100px; 
             border-radius: 50%; 
             background: radial-gradient(circle, #f0f0f0, #d3d3d3); 
             box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); 
-            transition: transform 0.5s ease; 
+            transition: transform 1s ease; 
         }
-        .pulse { 
-            transform: scale(1.2); 
+        #progress-svg {
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            width: 140px;
+            height: 140px;
+        }
+        #progress-circle {
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
         }
         #counter { 
             font-size: 28px; 
@@ -38,15 +51,25 @@
 </head>
 <body>
     <div id="counter">13</div>
-    <div id="moon"></div>
+    <div id="moon-container">
+        <svg id="progress-svg">
+            <circle id="progress-circle" cx="70" cy="70" r="70" fill="none" stroke="#f0f0f0" stroke-width="5" />
+        </svg>
+        <div id="moon"></div>
+    </div>
     <p id="guide">Inhale...</p>
 
     <script>
         const moon = document.getElementById("moon");
         const guide = document.getElementById("guide");
         const counter = document.getElementById("counter");
+        const progressCircle = document.getElementById("progress-circle");
 
-        // Define the breathing phases in seconds (inhale, exhale pairs)
+        const radius = 70;
+        const circumference = 2 * Math.PI * radius;
+        progressCircle.setAttribute("stroke-dasharray", circumference);
+
+        // Breathing phases (duration in seconds, text to display)
         const phases = [
             { duration: 13, text: "Inhale..." },
             { duration: 13, text: "Exhale..." },
@@ -58,7 +81,7 @@
             { duration: 2, text: "Exhale..." },
             { duration: 1, text: "Inhale..." },
             { duration: 1, text: "Exhale..." },
-            { duration: 30, text: "Hold..." } // Breath hold at the end
+            { duration: 30, text: "Hold..." }
         ];
 
         let currentPhaseIndex = 0;
@@ -69,11 +92,16 @@
             guide.textContent = phase.text;
             counter.textContent = secondsLeft;
 
-            // Pulse moon on inhale/exhale, steady on hold
-            if (phase.text === "Hold...") {
-                moon.classList.remove("pulse");
+            // Update progress bar
+            const fractionRemaining = secondsLeft / phase.duration;
+            const offset = circumference * (1 - fractionRemaining);
+            progressCircle.setAttribute("stroke-dashoffset", offset);
+
+            // Pulse moon during inhale
+            if (phase.text === "Inhale...") {
+                moon.style.transform = "scale(1.2)";
             } else {
-                moon.classList.toggle("pulse");
+                moon.style.transform = "scale(1)";
             }
         }
 
@@ -85,17 +113,18 @@
                 if (secondsLeft < 0) {
                     currentPhaseIndex++;
                     if (currentPhaseIndex >= phases.length) {
-                        clearInterval(interval); // End after hold
+                        clearInterval(interval);
                         guide.textContent = "Done!";
                         counter.textContent = "0";
-                        moon.classList.remove("pulse");
+                        progressCircle.setAttribute("stroke-dashoffset", circumference);
+                        moon.style.transform = "scale(1)";
                         return;
                     }
                     secondsLeft = phases[currentPhaseIndex].duration;
                 }
 
                 updateDisplay();
-            }, 1000); // Update every second
+            }, 1000);
         }
 
         // Start the breathing cycle
